@@ -5,8 +5,8 @@ namespace IpManager.Domain.Service
 {
     public interface IIpService
     {
-        Country GetIpCountryByIpAddress(string ip);
+        Task<Country> GetIpCountryByIpAddress(string ip);
         Task<List<CountryReport>> GetReport(List<string> countryCodes);
-        void UpdateIps();
+        Task UpdateIps();
     }
 }

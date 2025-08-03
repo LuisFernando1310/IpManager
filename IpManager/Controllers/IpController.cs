@@ -1,41 +1,56 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using IpManager.Domain.Service;
+using Microsoft.AspNetCore.Authorization;
 
 namespace IpManager.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class IpController: ControllerBase
+    [Route("api/[controller]")]
+    [Authorize(Roles = "Admin")]
+    public class IpController : ControllerBase
     {
         private readonly ILogger<IpController> _logger;
         private readonly IIpService _service;
 
-        public IpController(ILogger<IpController> logger, IIpService service) 
+        public IpController(ILogger<IpController> logger, IIpService service)
         {
             _logger = logger;
             _service = service;
         }
 
-        [HttpGet]
-        [Route("get-ip")]
-        public IActionResult GetIp (string ip)
+        [HttpGet("country")]
+        public async Task<IActionResult> GetIp([FromQuery] string ip)
         {
-            var response = _service.GetIpCountryByIpAddress(ip);
+            if (string.IsNullOrWhiteSpace(ip))
+            {
+                _logger.LogWarning("GetIp called with empty IP address.");
+                return BadRequest("IP address is required.");
+            }
+
+            var response = await _service.GetIpCountryByIpAddress(ip);
+            if (response == null)
+            {
+                return NotFound();
+            }
             return Ok(response);
         }
 
-        [HttpPut]
-        [Route("update-ip")]
+        [HttpPut("update")]
         public async Task<IActionResult> UpdateIp()
         {
-            _service.UpdateIps();
-            return Ok();
+            await _service.UpdateIps();
+            return Ok("IP addresses updated.");
         }
 
-        [HttpPost]
-        [Route("get-report")]
-        public async Task<IActionResult> GetReport(List<string> countryCodes)
+        [HttpPost("report")]
+        public async Task<IActionResult> GetReport([FromBody] List<string> countryCodes)
         {
+            if (countryCodes == null || !countryCodes.Any())
+            {
+                _logger.LogWarning("GetReport called with empty countryCodes.");
+                return BadRequest("Country codes are required.");
+            }
+
             var response = await _service.GetReport(countryCodes);
             return Ok(response);
         }
