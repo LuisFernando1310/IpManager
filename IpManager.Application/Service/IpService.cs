@@ -1,13 +1,11 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using IpManager.Application.Business;
 using IpManager.Contract.Models;
 using IpManager.Contract.Response;
 using IpManager.Data.Models;
 using IpManager.Domain.Repository;
 using IpManager.Domain.Service;
-using System.Diagnostics;
 
 namespace IpManager.Service
 {
@@ -17,7 +15,6 @@ namespace IpManager.Service
         private readonly IConfiguration _config;
         private readonly IMemoryCache _cache;
         private readonly IIpRepository _repository;
-        private readonly Uri ip2cAddres;
         private readonly IHttpClientFactory _httpClientFactory;
 
         public IpService(
@@ -31,7 +28,6 @@ namespace IpManager.Service
             _config = config;
             _cache = cache;
             _repository = repository;
-            ip2cAddres = new Uri(_config["IP2C_BasePath"]);
             _httpClientFactory = httpClientFactory;
         }
 
